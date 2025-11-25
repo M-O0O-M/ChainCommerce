@@ -312,7 +312,7 @@ https://etherscan.io/tx/[TRANSACTION_HASH]
 
 ```bash
 git clone https://github.com/M-O0O-M/ChainCommerce.git
-cd chaincommerce-platform
+cd ChainCommerce
 ```
 
 ### **2. Backend Setup**
