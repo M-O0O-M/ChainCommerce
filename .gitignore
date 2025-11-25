@@ -1,0 +1,10 @@
+node_modules/
+.env
+.DS_Store
+build/
+dist/
+*.log
+.cache/
+coverage/
+ChainCommerce.rar
+1.rar
