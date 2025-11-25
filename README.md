@@ -276,7 +276,7 @@ https://etherscan.io/tx/[TRANSACTION_HASH]
 │  │  Routes  │  │ In-Memory│  │   Auth   │  │   API    │     │
 │  │          │  │  Storage │  │   JWT    │  │          │     │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
-└─────────────────────────────────────────────┬────────────────┘
+└─────────────────────────────────────────────┬───────────────┘
                                               │ Ethers.js
                                               ▼
                                      ┌──────────────────────┐
@@ -327,7 +327,7 @@ npm install
 # Add JWT_SECRET and PORT if needed
 
 # Start server
-npm start
+npm run dev
 ```
 
 **Optional Environment Variables (.env):**
