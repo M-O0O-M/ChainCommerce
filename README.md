@@ -1,6 +1,6 @@
 # <img src="https://i.postimg.cc/BZkG1MmW/d5a36513-bff6-41ce-8979-fc759896e13f-1762935348-removebg-preview.png" alt="ChainCommerce Logo" width="30" height="30">ChainCommerce - Web3 E-commerce Platform
 
-A modern, decentralized e-commerce platform that combines traditional web technologies with blockchain capabilities. Built with the MERN stack and integrated with Ethereum blockchain for secure cryptocurrency payments via MetaMask.
+A modern, decentralized e-commerce platform that combines traditional web technologies with blockchain capabilities. Built with React, Node.js/Express, and integrated with Ethereum blockchain for secure cryptocurrency payments via MetaMask.
 
 ## 📋 Table of Contents
 
@@ -48,12 +48,12 @@ A modern, decentralized e-commerce platform that combines traditional web techno
 |------------|---------|---------|
 | **Node.js** | 16+ | JavaScript runtime environment |
 | **Express.js** | 4.x | Web application framework |
-| **MongoDB** | 5.x | NoSQL database for storing user and product data |
-| **Mongoose** | 7.x | MongoDB object modeling and schema validation |
+| **In-Memory Storage** | - | Lightweight data storage using JavaScript arrays |
 | **JWT** | 9.x | JSON Web Tokens for authentication |
 | **bcryptjs** | 2.x | Password hashing and security |
 | **CORS** | 2.x | Cross-Origin Resource Sharing middleware |
 | **dotenv** | 16.x | Environment variable management |
+| **Ethers.js** | 6.x | Ethereum blockchain interaction on backend |
 | **JavaScript (Node.js)** | - | Server-side programming language |
 
 ### **Blockchain Technologies**
@@ -72,7 +72,6 @@ A modern, decentralized e-commerce platform that combines traditional web techno
 - **npm** - Package management
 - **VS Code** - Code editor
 - **Postman** - API testing
-- **MongoDB Compass** - Database management
 
 ## ⛓️ Blockchain Integration
 
@@ -131,7 +130,7 @@ User → MetaMask → Ethereum Network → Smart Contract → Merchant Wallet
 4. **Transaction Confirmation**
    - Ethereum network validates transaction (15-30 seconds)
    - Transaction hash generated as proof
-   - Order recorded in both database and blockchain
+   - Order recorded on blockchain with immutable proof
 
 5. **Verification**
    - Transaction hash can be verified on Etherscan
@@ -166,17 +165,18 @@ User → MetaMask → Ethereum Network → Smart Contract → Merchant Wallet
 - Product IDs
 - Transaction hash
 
-**Off-Chain (MongoDB):**
+**Off-Chain (In-Memory Storage):**
 - Product details (name, description, images)
 - User profiles and authentication
-- Order metadata
+- Session data
 - Shopping cart state
 
 **Why Hybrid Approach?**
 - **Cost Efficiency**: Storing large data on blockchain is expensive
-- **Performance**: Database queries are faster than blockchain reads
+- **Performance**: In-memory access is faster than blockchain reads
 - **Flexibility**: Can update product details without blockchain transactions
 - **Privacy**: Personal information not exposed on public blockchain
+- **Simplicity**: Lightweight storage for development and prototyping
 
 #### **5. Security Benefits**
 
@@ -273,38 +273,37 @@ https://etherscan.io/tx/[TRANSACTION_HASH]
 ┌────────────────────┴────────────────────────────────────────┐
 │                      Backend (Express)                      │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│  │  Routes  │  │  Models  │  │   Auth   │  │   API    │     │
+│  │  Routes  │  │ In-Memory│  │   Auth   │  │   API    │     │
+│  │          │  │  Storage │  │   JWT    │  │          │     │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
-└────────┬───────────────────────────────────────┬────────────┘
-         │                                       │
-         │ Mongoose                              │ Ethers.js
-         ▼                                       ▼
-┌─────────────────┐                    ┌──────────────────────┐
-│    MongoDB      │                    │  Ethereum Blockchain │
-│   (Database)    │                    │   (Smart Contract)   │
-└─────────────────┘                    └──────────────────────┘
-                                                 ▲
-                                                 │ MetaMask
-                                                 │
-                                        ┌────────┴─────────┐
-                                        │   User Wallet    │
-                                        └──────────────────┘
+└─────────────────────────────────────────────┬────────────────┘
+                                              │ Ethers.js
+                                              ▼
+                                     ┌──────────────────────┐
+                                     │  Ethereum Blockchain │
+                                     │   (Smart Contract)   │
+                                     └──────────────────────┘
+                                              ▲
+                                              │ MetaMask
+                                              │
+                                     ┌────────┴─────────┐
+                                     │   User Wallet    │
+                                     └──────────────────┘
 ```
 
 ### **Data Flow**
 
 1. **User Authentication**: JWT tokens stored in localStorage
-2. **Product Browsing**: REST API fetches from MongoDB
+2. **Product Browsing**: REST API fetches from in-memory storage
 3. **Cart Management**: React Context API (client-side state)
 4. **Payment**: Ethers.js → MetaMask → Ethereum → Smart Contract
-5. **Order Recording**: Blockchain (immutable) + MongoDB (queryable)
+5. **Order Recording**: Blockchain (immutable) + in-memory cache
 
 ## 🚀 Setup Instructions
 
 ### **Prerequisites**
 
 - Node.js v16 or higher
-- MongoDB v5 or higher
 - MetaMask browser extension
 - Git
 
@@ -324,33 +323,23 @@ cd server
 # Install dependencies
 npm install
 
-# Create .env file
-cp .env.example .env
+# Create .env file (optional)
+# Add JWT_SECRET and PORT if needed
 
-# Edit .env with your configuration
-nano .env
+# Start server
+npm start
 ```
 
-**Environment Variables:**
+**Optional Environment Variables (.env):**
 ```env
-PORT=5001
-MONGODB_URI=mongodb://localhost:27017/chaincommerce
+PORT=5000
 JWT_SECRET=your-super-secret-jwt-key-change-this
 NODE_ENV=development
 ```
 
-```bash
-# Start MongoDB
-mongod
+Server runs at: `http://localhost:5000`
 
-# Seed database with sample products
-npm run seed
-
-# Start server
-npm run dev
-```
-
-Server runs at: `http://localhost:5001`
+**Note:** Products and users are stored in-memory. Data will reset when the server restarts. For production, consider integrating a persistent database.
 
 ### **3. Frontend Setup**
 
@@ -541,9 +530,8 @@ GET    /api/orders/:id        - Get order details
 - ✅ Input validation and sanitization
 - ✅ Environment variable protection
 - ✅ HTTPS in production
-- ✅ Rate limiting on API endpoints
-- ✅ MongoDB injection prevention
 - ✅ XSS protection
+- ✅ Secure session management
 
 ### **Blockchain Security**
 
@@ -592,4 +580,4 @@ For issues and questions:
 
 ---
 
-**⛓️🛍️ ChainCommerce - Built with ❤️ using React, Node.js, MongoDB, and Ethereum**
+**⛓️🛍️ ChainCommerce - Built with ❤️ using React, Node.js/Express, and Ethereum**
